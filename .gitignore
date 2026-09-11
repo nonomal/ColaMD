@@ -3,6 +3,9 @@ dist/
 release/
 *.log
 .DS_Store
-.claude/
 *.env
 log.md
+mobile/ios/build/
+mobile/ios/ColaMDReader.xcodeproj/project.xcworkspace/
+mobile/ios/ColaMDReader.xcodeproj/xcuserdata/
+vscode-extension/*.vsix

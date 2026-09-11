@@ -2,7 +2,15 @@ const themes: Record<string, string> = {
   light: 'theme-light',
   dark: 'theme-dark',
   elegant: 'theme-elegant',
-  newsprint: 'theme-newsprint'
+  sepia: 'theme-sepia',
+  notion: 'theme-notion',
+  bear: 'theme-bear',
+  writer: 'theme-writer',
+  'solarized-dark': 'theme-solarized-dark',
+  nord: 'theme-nord',
+  gruvbox: 'theme-gruvbox',
+  dracula: 'theme-dracula',
+  midnight: 'theme-midnight'
 }
 
 let customStyleEl: HTMLStyleElement | null = null
@@ -33,8 +41,16 @@ export function applyTheme(name: string, customCSS?: string): void {
 
   // Persist theme choice
   localStorage.setItem('colamd-theme', name)
+
+  // Tell the main process so the theme menu can show the selected state
+  window.electronAPI?.reportTheme?.(name)
 }
 
 export function loadSavedTheme(): string {
-  return localStorage.getItem('colamd-theme') || 'elegant'
+  const saved = localStorage.getItem('colamd-theme')
+  if (!saved) return 'elegant'
+  // Custom themes are stored as "custom:<file>.css". Preserve the name so a
+  // newly opened window can reload its stylesheet instead of falling back.
+  if (themes[saved] || saved.startsWith('custom:')) return saved
+  return 'elegant'
 }

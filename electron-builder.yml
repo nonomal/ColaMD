@@ -12,6 +12,8 @@ files:
 extraResources:
   - from: resources/templates
     to: templates
+  - from: resources/demo
+    to: demo
 
 npmArgs:
   - "--loglevel=error"
@@ -27,6 +29,10 @@ fileAssociations:
     name: Markdown Document
     role: Editor
     mimeType: text/markdown
+  - ext: txt
+    name: Text Document
+    role: Editor
+    mimeType: text/plain
 
 mac:
   target:
@@ -53,5 +59,16 @@ linux:
   icon: resources/icon.png
 
 nsis:
+  # No spaces: the default "${productName} Setup ${version}.exe" gets sanitized
+  # two different ways (latest.yml: space -> "-", GitHub asset: space -> "."),
+  # so the updater requested a filename that never existed on the release
+  # (ColaMD-Setup-2.0.0.exe vs ColaMD.Setup.2.0.0.exe) and every in-app update
+  # on Windows failed with a silent 404 (#56).
+  artifactName: ${productName}-Setup-${version}.${ext}
   oneClick: false
   allowToChangeInstallationDirectory: true
+
+publish:
+  provider: github
+  owner: marswaveai
+  repo: ColaMD

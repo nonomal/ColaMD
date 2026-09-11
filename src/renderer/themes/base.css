@@ -12,82 +12,224 @@ html, body {
   color: var(--text-color);
 }
 
+body {
+  --search-match-bg: color-mix(in srgb, var(--link-color) 18%, transparent);
+  --search-match-current-bg: color-mix(in srgb, var(--link-color) 32%, transparent);
+}
+
 #titlebar {
   -webkit-app-region: drag;
-  height: 52px;
+  height: 40px;
   flex-shrink: 0;
   position: relative;
 }
 
-#agent-dot {
+#title-center {
   position: absolute;
-  top: 22px;
-  right: 16px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-muted);
-  opacity: 0.3;
-  -webkit-app-region: no-drag;
-  transition: background 0.3s ease, opacity 0.3s ease;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 300px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
 }
 
-#slides-btn {
+#file-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--text-muted);
+  /* The titlebar is a window drag region and never receives pointer events, so
+     the reveal button hangs its hover on the title itself, which must stay
+     interactive to be hoverable. */
+  pointer-events: auto;
+  -webkit-app-region: no-drag;
+  cursor: default;
+}
+
+#save-status {
+  flex-shrink: 0;
+  margin-left: 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+/* Only unsaved edits are announced; a successful save fades out silently. */
+#save-status.pending {
+  opacity: 0.55;
+}
+
+#file-toggle-btn {
   position: absolute;
-  top: 14px;
-  right: 32px;
+  top: 6px;
+  right: 104px;
   width: 28px;
   height: 28px;
   border-radius: 6px;
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: 13px;
   cursor: pointer;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   -webkit-app-region: no-drag;
   transition: background 0.15s, color 0.15s;
 }
 
-#slides-btn:hover {
-  background: var(--accent-soft, rgba(241,117,45,0.12));
-  color: #F1752D;
+#file-toggle-btn:hover {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
 }
 
-#slides-btn.visible {
+#file-toggle-btn.active {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
+}
+
+#file-toggle-btn.active:hover {
+  background: rgba(127, 127, 127, 0.2);
+}
+
+#reveal-file-btn {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
 }
 
-#agent-dot.active {
-  background: #e8913a;
+#reveal-file-btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
+}
+
+#reveal-file-btn:disabled:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+#titlebar:hover #reveal-file-btn:not(:disabled),
+#reveal-file-btn:focus-visible {
   opacity: 1;
-  animation: agent-breathe 2s ease-in-out infinite;
+  pointer-events: auto;
 }
 
-#agent-dot.cooldown {
-  background: #3dba5c;
+/* Source (Markdown) / WYSIWYG toggle */
+#source-toggle-btn {
+  position: absolute;
+  top: 6px;
+  right: 68px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+  transition: background 0.15s, color 0.15s;
+}
+
+#source-toggle-btn:hover {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
+}
+
+#source-toggle-btn.active {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
+}
+
+#source-toggle-btn.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#source-toggle-btn.disabled:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+/* Top-right controls: keep labels hidden until their icon is hovered. */
+#word-count:hover,
+#source-toggle-btn:hover,
+#file-toggle-btn:hover,
+#reveal-file-btn:hover {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
+}
+
+.toolbar-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  color: var(--text-color);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-3px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+#titlebar > button:hover .toolbar-tip,
+#reveal-file-btn:hover .toolbar-tip,
+#reveal-file-btn:focus-visible .toolbar-tip {
   opacity: 1;
-  animation: none;
+  transform: translateY(0);
 }
 
-@keyframes agent-breathe {
-  0%, 100% { opacity: 0.45; transform: scale(0.95); }
-  50% { opacity: 1; transform: scale(1.05); }
+#word-count {
+  cursor: default;
 }
 
 #editor {
-  height: calc(100vh - 52px);
+  position: relative; /* anchor for the absolutely-positioned code copy button */
+  height: calc(100vh - 40px);
   overflow-y: auto;
   padding: 0 40px 40px;
 }
 
 #source-editor {
   display: none;
-  height: calc(100vh - 52px);
+  height: calc(100vh - 40px);
   width: 100%;
-  padding: 40px;
+  /* Center a column matching the visual editor (780px) so switching modes
+     keeps the text in the same place (#48). Falls back to 40px on narrow windows. */
+  padding: 40px max(40px, calc((100% - 780px) / 2));
   box-sizing: border-box;
   border: none;
   outline: none;
@@ -102,6 +244,249 @@ html, body {
 
 #source-editor.visible {
   display: block;
+}
+
+/* Same-directory file panel */
+#file-panel {
+  position: fixed;
+  top: 40px;
+  left: 0;
+  bottom: 0;
+  width: var(--file-panel-width, 220px);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-color);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  padding: 10px 8px;
+}
+
+#file-panel[hidden] {
+  display: none;
+}
+
+/* Edge hot zone for resizing the panel; deliberately handle-free — a hover
+   stripe is the only affordance (design.md). */
+#panel-resizer {
+  position: fixed;
+  top: 40px;
+  bottom: 0;
+  left: calc(var(--file-panel-width, 220px) - 3px);
+  width: 6px;
+  cursor: col-resize;
+  z-index: 6;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+body:not(.show-file-panel) #panel-resizer {
+  display: none;
+}
+
+#panel-resizer:hover,
+#panel-resizer.dragging {
+  background: color-mix(in srgb, var(--link-color) 30%, transparent);
+}
+
+body.panel-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.file-panel-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0 0 8px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.file-panel-tabs button {
+  min-height: 26px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.file-panel-tabs button:hover {
+  color: var(--text-color);
+}
+
+.file-panel-tabs button.active {
+  background: var(--bg-color);
+  color: var(--text-color);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+#file-list,
+#outline-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+#file-list button,
+#outline-list button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.file-entry-icon {
+  display: inline-flex;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.file-entry-icon svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.file-entry-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#outline-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+#file-list[hidden],
+#outline-list[hidden] {
+  display: none;
+}
+
+#outline-list button {
+  line-height: 1.4;
+}
+
+#outline-list button.empty {
+  color: var(--text-muted);
+  cursor: default;
+  font-style: italic;
+}
+
+#outline-list button.empty:hover {
+  background: transparent;
+}
+
+#file-list button:hover .file-entry-name.scrolling {
+  text-overflow: clip;
+  animation: file-entry-scroll var(--file-entry-scroll-duration) ease-in-out 500ms infinite alternate;
+}
+
+@keyframes file-entry-scroll {
+  to {
+    transform: translateX(calc(-1 * var(--file-entry-scroll)));
+  }
+}
+
+#file-list button:hover,
+#outline-list button:hover {
+  background: rgba(127, 127, 127, 0.14);
+}
+
+#file-list button.active {
+  background: rgba(241, 117, 45, 0.14);
+  color: #F1752D;
+}
+
+/* Reading-position entry: derived from the theme link color so every theme
+   adapts without per-theme values (#64). */
+#outline-list button.active {
+  background: color-mix(in srgb, var(--link-color) 12%, transparent);
+  color: var(--link-color);
+}
+
+#outline-list button.active:hover {
+  background: color-mix(in srgb, var(--link-color) 18%, transparent);
+}
+
+/* Outline-jump feedback: the landing heading flashes once and fades (#64). */
+@keyframes heading-flash {
+  0% {
+    background-color: color-mix(in srgb, var(--link-color) 28%, transparent);
+  }
+  70% {
+    background-color: color-mix(in srgb, var(--link-color) 14%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.heading-flash {
+  animation: heading-flash 1.6s ease-out;
+  border-radius: 4px;
+}
+
+#file-list button.directory {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+#outline-list button.active {
+  background: rgba(241, 117, 45, 0.14);
+  color: #F1752D;
+}
+
+#file-list button.parent {
+  color: var(--text-secondary, var(--text-muted));
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  margin-bottom: 4px;
+}
+
+#file-list button.parent .file-entry-icon {
+  color: var(--text-muted);
+}
+
+body.show-file-panel #editor,
+body.show-file-panel #source-editor {
+  margin-left: var(--file-panel-width, 220px);
+}
+
+/* The source editor has an explicit width, so account for the panel margin
+   instead of extending past the viewport when both are visible. */
+body.show-file-panel #source-editor {
+  width: calc(100% - var(--file-panel-width, 220px));
 }
 
 #editor.hidden {
@@ -185,6 +570,7 @@ html, body {
 }
 
 #editor .ProseMirror pre {
+  position: relative;
   background: var(--code-block-bg);
   color: var(--code-block-text, var(--text-color));
   padding: 16px;
@@ -200,12 +586,71 @@ html, body {
   line-height: 1.6;
 }
 
+#editor .ProseMirror .mermaid-diagram {
+  overflow-x: auto;
+  padding: 12px 8px;
+  text-align: center;
+  background: var(--code-block-bg);
+  border-radius: 6px;
+}
+
+#editor .ProseMirror .mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+#editor .ProseMirror .mermaid-error {
+  padding: 8px 12px;
+  border: 1px solid var(--blockquote-border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.8em;
+  background: var(--blockquote-bg);
+}
+
+/* Copy buttons live OUTSIDE the ProseMirror DOM (overlay widgets in the
+   editor root), so they are styled from the root, never inside .ProseMirror. */
+#editor > .code-copy-btn {
+  position: absolute;
+  z-index: 10;
+  padding: 3px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-secondary, var(--text-muted));
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate(-100%, 0);
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+#editor > .code-copy-btn.hovering,
+#editor > .code-copy-btn:focus-visible,
+#editor > .code-copy-btn.copied {
+  opacity: 1;
+}
+
+#editor > .code-copy-btn:hover,
+#editor > .code-copy-btn.copied {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
+}
+
+#editor .ProseMirror .milkdown-html-inline img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
 /* Blockquote */
 #editor .ProseMirror blockquote {
   border-left: 4px solid var(--blockquote-border);
   padding-left: 16px;
   margin: 1em 0;
-  color: var(--text-muted);
+  color: var(--text-secondary, var(--text-muted));
 }
 
 /* Lists */
@@ -221,6 +666,49 @@ html, body {
 
 #editor .ProseMirror li > p {
   margin: 0;
+}
+
+/* Task lists (GFM checkboxes) */
+#editor .ProseMirror li[data-item-type="task"] {
+  position: relative;
+  list-style: none;
+  padding-left: 1.6em;
+}
+
+#editor .ProseMirror li[data-item-type="task"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 0.95em;
+  height: 0.95em;
+  border: 1.5px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#editor .ProseMirror li[data-item-type="task"]:hover::before {
+  border-color: var(--text-muted);
+}
+
+#editor .ProseMirror li[data-item-type="task"][data-checked="true"]::before {
+  background: var(--link-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8l3 3 6-6.5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 80% no-repeat;
+  border-color: var(--link-color);
+}
+
+#editor .ProseMirror li[data-item-type="task"][data-checked="true"] > p {
+  color: var(--text-secondary, var(--text-muted));
+  text-decoration: line-through;
+}
+
+/* Highlight (==text==) */
+#editor .ProseMirror mark {
+  background: var(--highlight-bg, #fff3bf);
+  color: inherit;
+  padding: 0 0.15em;
+  border-radius: 3px;
 }
 
 /* Table */
@@ -261,9 +749,10 @@ html, body {
 
 /* ======= THEMES ======= */
 
-body, body.theme-light {
+:root, body.theme-light {
   --bg-color: #ffffff;
   --text-color: #24292f;
+  --text-secondary: #656d76;
   --text-muted: #656d76;
   --border-color: #d0d7de;
   --link-color: #0969da;
@@ -272,11 +761,13 @@ body, body.theme-light {
   --blockquote-border: #d0d7de;
   --table-header-bg: #f6f8fa;
   --selection-bg: rgba(9, 105, 218, 0.15);
+  --highlight-bg: #fff3bf;
 }
 
 body.theme-dark {
   --bg-color: #0d1117;
   --text-color: #e6edf3;
+  --text-secondary: #aab3bd;
   --text-muted: #8b949e;
   --border-color: #30363d;
   --link-color: #58a6ff;
@@ -285,14 +776,16 @@ body.theme-dark {
   --blockquote-border: #30363d;
   --table-header-bg: #161b22;
   --selection-bg: rgba(88, 166, 255, 0.2);
+  --highlight-bg: rgba(210, 153, 34, 0.35);
 }
 
 body.theme-elegant {
   --bg-color: #f0edea;
   --text-color: #2c2c2c;
+  --text-secondary: #6c6c6c;
   --text-muted: #777;
   --border-color: #d8d3ce;
-  --link-color: #c44b2b;
+  --link-color: #bc4424;
   --code-bg: #e8e4df;
   --code-block-bg: #2c2c2c;
   --code-block-text: #e0dcd7;
@@ -301,6 +794,7 @@ body.theme-elegant {
   --table-header-bg: #eae6e1;
   --table-border: #d8d3ce;
   --selection-bg: rgba(196, 75, 43, 0.2);
+  --highlight-bg: #f0d9a8;
 }
 
 body.theme-elegant #editor .ProseMirror {
@@ -338,26 +832,10 @@ body.theme-elegant #editor .ProseMirror table td {
   border-right: none;
 }
 
-body.theme-newsprint {
-  --bg-color: #f5f2eb;
-  --text-color: #1a1a1a;
-  --text-muted: #666;
-  --border-color: #d4d0c8;
-  --link-color: #2c5f8a;
-  --code-bg: rgba(0, 0, 0, 0.05);
-  --code-block-bg: #eae6de;
-  --blockquote-border: #999;
-  --table-header-bg: #eae6de;
-  --selection-bg: rgba(44, 95, 138, 0.15);
-}
-
-body.theme-newsprint #editor .ProseMirror {
-  font-family: 'PT Serif', Georgia, serif;
-}
-
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -367,4 +845,418 @@ body.theme-newsprint #editor .ProseMirror {
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 3px;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-color);
+}
+
+/* ======= SEARCH PANEL ======= */
+
+.search-panel {
+  position: fixed;
+  top: 10px;
+  right: 56px;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+  grid-template-areas:
+    "query count prev next close"
+    "replace replace replace replace replace";
+  align-items: center;
+  column-gap: 4px;
+  row-gap: 6px;
+  width: 360px;
+  padding: 6px 8px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  -webkit-app-region: no-drag;
+}
+
+.search-input {
+  width: 180px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 13px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--link-color);
+}
+
+.search-count {
+  min-width: 32px;
+  color: var(--text-secondary, var(--text-muted));
+  font-size: 12px;
+  text-align: center;
+}
+
+.search-panel > .search-input { grid-area: query; min-width: 0; width: auto; }
+.search-panel > .search-count { grid-area: count; min-width: 32px; }
+.search-panel > .search-btn:nth-of-type(1) { grid-area: prev; }
+.search-panel > .search-btn:nth-of-type(2) { grid-area: next; }
+.search-panel > .search-btn.search-close { grid-area: close; }
+
+.search-replace-row {
+  grid-area: replace;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 4px;
+  padding: 0;
+}
+
+.search-replace-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-action {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 7px;
+  background: none;
+  color: var(--text-secondary, var(--text-muted));
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-action:hover {
+  background: var(--code-bg);
+  color: var(--text-color);
+}
+
+.search-btn {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: none;
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-btn:hover {
+  background: var(--code-bg);
+}
+
+.search-close {
+  font-size: 16px;
+}
+
+.search-match {
+  background: var(--search-match-bg);
+  border-radius: 2px;
+}
+
+.search-match-current {
+  background: var(--search-match-current-bg);
+  border-radius: 2px;
+}
+
+/* ======= MATH ======= */
+
+#editor .ProseMirror .math-inline {
+  padding: 0 2px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#editor .ProseMirror .math-inline:hover {
+  background: var(--code-bg);
+}
+
+#editor .ProseMirror .math-block {
+  margin: 1em 0;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#editor .ProseMirror .math-block:hover {
+  background: var(--code-bg);
+}
+
+.math-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.math-modal {
+  display: flex;
+  width: 480px;
+  max-width: 90vw;
+  padding: 20px;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  -webkit-app-region: no-drag;
+}
+
+.math-modal h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.math-modal-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+}
+
+.math-modal-input:focus {
+  border-color: var(--link-color);
+}
+
+.math-modal-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary, var(--text-muted));
+  font-size: 13px;
+}
+
+.math-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.math-modal-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.math-modal-btn.cancel {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-color);
+}
+
+.math-modal-btn.cancel:hover {
+  background: var(--code-bg);
+}
+
+.math-modal-btn.save {
+  background: var(--link-color);
+  color: #fff;
+}
+
+.math-modal-btn.save:hover {
+  opacity: 0.9;
+}
+
+/* Update banner (weak, non-blocking) */
+#update-banner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px 9px 14px;
+  border-radius: 8px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  color: var(--text-color);
+  font-size: 13px;
+  z-index: 100;
+}
+
+#update-banner[hidden] {
+  display: none;
+}
+
+#update-banner-text {
+  white-space: nowrap;
+}
+
+#update-banner-action {
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--link-color);
+  color: #fff;
+}
+
+#update-banner-action:hover {
+  opacity: 0.9;
+}
+
+#update-banner-action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#update-banner-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+#update-banner-dismiss:hover {
+  background: rgba(127, 127, 127, 0.14);
+  color: var(--text-color);
+}
+
+/* ===== Editor font preferences (#7752855) =====
+   User preference > theme > built-in defaults. Only the editor prose and the
+   source editor are overridden; code blocks keep the theme's code font. */
+body.has-custom-font #editor .ProseMirror {
+  font-family: var(--editor-font) !important;
+  font-size: var(--editor-font-size, 16px) !important;
+}
+
+body.has-custom-font #source-editor {
+  font-family: var(--editor-font) !important;
+  font-size: var(--editor-font-size, 14px) !important;
+}
+
+/* Font settings modal (reuses math-modal shell) */
+.font-modal {
+  width: 440px;
+  gap: 14px;
+}
+
+.font-modal h3 {
+  font-size: 15px;
+}
+
+.font-modal-row {
+  display: flex;
+  gap: 10px;
+}
+
+.font-modal-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.font-modal-col-size {
+  flex: none;
+  width: 84px;
+}
+
+.font-modal-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.font-modal .math-modal-input {
+  font-family: inherit;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.font-modal .font-modal-size {
+  width: 100%;
+}
+
+.font-modal-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10001;
+  max-height: 208px;
+  overflow-y: auto;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+}
+
+.font-modal-list-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--text-color);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.font-modal-list-item:hover,
+.font-modal-list-item.active {
+  background: var(--code-bg);
+}
+
+.font-modal-preview {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--code-bg);
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.font-modal-footer {
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.font-modal-footer-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* Print only document content; app overlays can appear at any time. */
+@media print {
+  body > :not(#editor),
+  #editor > .code-copy-btn {
+    display: none !important;
+  }
 }

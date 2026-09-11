@@ -6,7 +6,10 @@ export default defineConfig({
     build: {
       outDir: 'dist/main',
       rollupOptions: {
-        input: resolve(__dirname, 'src/main/index.ts')
+        input: resolve(__dirname, 'src/main/index.ts'),
+        output: {
+          chunkFileNames: 'chunks/[name].js'
+        }
       }
     }
   },
@@ -23,7 +26,10 @@ export default defineConfig({
     build: {
       outDir: resolve(__dirname, 'dist/renderer'),
       rollupOptions: {
-        input: resolve(__dirname, 'src/renderer/index.html')
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          'mermaid-sandbox': resolve(__dirname, 'src/renderer/mermaid-sandbox.html')
+        }
       }
     }
   }
